@@ -1,0 +1,18 @@
+# Optional: pings the live site every 15 minutes so the ISR cache is always
+# rebuilt on schedule, even when nobody is visiting. Set the repository
+# variable SITE_URL (Settings → Secrets and variables → Actions → Variables)
+# to your Vercel URL, e.g. https://sportsnewsroom.vercel.app
+name: keep-warm
+on:
+  schedule:
+    - cron: "*/15 * * * *"
+  workflow_dispatch:
+jobs:
+  ping:
+    if: ${{ vars.SITE_URL != '' }}
+    runs-on: ubuntu-latest
+    steps:
+      - run: |
+          for path in / /api/matches /api/news; do
+            curl -fsS -o /dev/null -w "$path %{http_code}\n" "${{ vars.SITE_URL }}$path" || true
+          done
