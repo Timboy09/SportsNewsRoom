@@ -12,6 +12,9 @@ const ENDPOINTS = [
   { title: "Search a team, Markdown output", code: `curl "{origin}/api/matches?q=real%20madrid&format=markdown"` },
   { title: "Latest cricket headlines", code: `curl "{origin}/api/news?sport=cricket&limit=20"` },
   { title: "One match in any copy format", code: `curl "{origin}/api/match/<league>/<eventId>?format=social"` },
+  { title: "Match poster PNG (square | portrait | story)", code: `{origin}/api/poster/match/<league>/<eventId>?size=portrait&handle=@yourpage` },
+  { title: "Headline poster PNG", code: `{origin}/api/poster/headline?title=India%20win%20the%20series&source=BBC%20Sport&sport=cricket&size=square` },
+  { title: "Games countdown poster PNG", code: `{origin}/api/poster/games/aichi-nagoya-para-2026?size=story` },
   { title: "Source health", code: `curl "{origin}/api/health"` },
 ];
 

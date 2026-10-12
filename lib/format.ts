@@ -18,7 +18,7 @@ const scoreLine = (m: Match): string => {
   if (!m.headToHead) return m.name;
   const [a, b] = m.competitors;
   if (!b) return a?.name ?? m.name;
-  if (m.state === "pre") return `${a.name} vs ${b.name}`;
+  if (m.state === "pre" || m.competitors.every((c) => c.score === undefined && !c.linescores)) return `${a.name} vs ${b.name}`;
   if (!a.score && !b.score && a.linescores && b.linescores)
     return `${a.name} ${a.linescores.join(" ")} – ${b.linescores.join(" ")} ${b.name}`;
   return `${a.name} ${a.score ?? "-"} – ${b.score ?? "-"} ${b.name}`;

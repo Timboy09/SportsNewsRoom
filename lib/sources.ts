@@ -29,7 +29,12 @@ export type SportKey =
   | "racing"
   | "golf"
   | "cricket"
-  | "rugby";
+  | "rugby"
+  | "chess"
+  | "games"
+  | "badminton"
+  | "athletics"
+  | "kabaddi";
 
 export interface League {
   sport: SportKey;
@@ -39,19 +44,28 @@ export interface League {
   region: string;
 }
 
+/** Display order = category bar order. */
 export const SPORT_LABELS: Record<SportKey, { label: string; icon: string }> = {
   soccer: { label: "Football", icon: "⚽" },
   cricket: { label: "Cricket", icon: "🏏" },
+  games: { label: "Multi-sport Games", icon: "🏅" },
+  chess: { label: "Chess", icon: "♟️" },
+  tennis: { label: "Tennis", icon: "🎾" },
   basketball: { label: "Basketball", icon: "🏀" },
+  badminton: { label: "Badminton", icon: "🏸" },
+  kabaddi: { label: "Kabaddi", icon: "🤼" },
+  athletics: { label: "Athletics", icon: "🏃" },
+  racing: { label: "Formula 1", icon: "🏎️" },
+  rugby: { label: "Rugby", icon: "🏉" },
+  hockey: { label: "Ice Hockey", icon: "🏒" },
   football: { label: "American Football", icon: "🏈" },
   baseball: { label: "Baseball", icon: "⚾" },
-  hockey: { label: "Ice Hockey", icon: "🏒" },
-  tennis: { label: "Tennis", icon: "🎾" },
   mma: { label: "MMA", icon: "🥊" },
-  racing: { label: "Formula 1", icon: "🏎️" },
   golf: { label: "Golf", icon: "⛳" },
-  rugby: { label: "Rugby", icon: "🏉" },
 };
+
+export const SPORT_KEYS = Object.keys(SPORT_LABELS) as SportKey[];
+export const isSportKey = (s: string): s is SportKey => s in SPORT_LABELS;
 
 export const LEAGUES: League[] = [
   // Football (soccer) — Europe
@@ -104,7 +118,16 @@ export interface NewsFeed {
   source: string;
   url: string;
   sport?: SportKey;
+  /** Google News search feed: the real publisher comes from each item. */
+  aggregator?: boolean;
 }
+
+const gnews = (q: string, sport: SportKey): NewsFeed => ({
+  source: "Google News",
+  url: `https://news.google.com/rss/search?q=${encodeURIComponent(q)}+when:3d&hl=en-IN&gl=IN&ceid=IN:en`,
+  sport,
+  aggregator: true,
+});
 
 /** RSS/Atom feeds — broad global coverage incl. cricket, rugby, athletics. */
 export const NEWS_FEEDS: NewsFeed[] = [
@@ -119,7 +142,22 @@ export const NEWS_FEEDS: NewsFeed[] = [
   { source: "Sky Sports", url: "https://www.skysports.com/rss/12040" },
   { source: "Yahoo Sports", url: "https://sports.yahoo.com/rss/" },
   { source: "CBS Sports", url: "https://www.cbssports.com/rss/headlines/" },
+  { source: "Chess.com", url: "https://www.chess.com/rss/news", sport: "chess" },
+  { source: "ChessBase", url: "https://en.chessbase.com/feed", sport: "chess" },
+  // Google News searches — catch sports the big outlets under-cover.
+  gnews("chess tournament OR FIDE OR grandmaster", "chess"),
+  gnews('"Asian Games" OR "Asian Para Games"', "games"),
+  gnews('"Commonwealth Games"', "games"),
+  gnews('Olympics OR "Youth Olympic Games" OR Paralympics', "games"),
+  gnews("cricket match score", "cricket"),
+  gnews("badminton BWF", "badminton"),
+  gnews('"Pro Kabaddi" OR kabaddi', "kabaddi"),
+  gnews('athletics OR "Diamond League" OR marathon', "athletics"),
+  gnews("Indian Super League OR ISL football", "soccer"),
 ];
+
+/** Lichess official broadcasts — free live chess from top events. */
+export const LICHESS_BASE = process.env.LICHESS_BASE ?? "https://lichess.org";
 
 /** ESPN JSON news endpoints, one per sport for clean sport tagging. */
 export const ESPN_NEWS: { sport: SportKey; slug: string }[] = [
@@ -133,3 +171,6 @@ export const ESPN_NEWS: { sport: SportKey; slug: string }[] = [
   { sport: "racing", slug: "f1" },
   { sport: "mma", slug: "ufc" },
 ];
+
+/** Sports that have a live-score source (the rest are headlines-only). */
+export const LIVE_SCORE_SPORTS = new Set<SportKey>([...LEAGUES.map((l) => l.sport), ...SPORTSDB_SPORTS.map((s) => s.sport), "chess"]);

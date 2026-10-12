@@ -3,6 +3,7 @@ import { cache } from "react";
 import { errorText, fetchJsonWithFallback, nextUpdate } from "./fetcher";
 import { ESPN_API_BASES, LEAGUES, SPORTSDB_SPORTS, type League } from "./sources";
 import { fetchSportsDb, fixtureKey } from "./sportsdb";
+import { fetchChess } from "./chess";
 import type { Competitor, Match, MatchEvent, MatchState, Snapshot, SourceHealth } from "./types";
 
 const MAX_UNITS_PER_EVENT = 40;
@@ -180,6 +181,7 @@ export const getAllMatches = cache(async (): Promise<Snapshot<Match>> => {
   const jobs: { name: string; run: () => Promise<Match[]> }[] = [
     ...LEAGUES.map((l) => ({ name: l.name, run: () => fetchLeague(l) })),
     ...SPORTSDB_SPORTS.map((s) => ({ name: `TheSportsDB ${s.name}`, run: () => fetchSportsDb(s.name, s.sport) })),
+    { name: "Lichess broadcasts (chess)", run: fetchChess },
   ];
   const results = await Promise.allSettled(jobs.map((j) => j.run()));
   const sources: SourceHealth[] = [];
