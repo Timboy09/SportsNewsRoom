@@ -23,7 +23,7 @@ export default function SiteLayout({ children }: { children: React.ReactNode }) 
       <main className="wrap">{children}</main>
       <footer className="wrap footer">
         <p>
-          Scores &amp; fixtures via ESPN public scoreboards · headlines via BBC Sport, ESPN, ESPNcricinfo, The Guardian, Sky
+          Scores &amp; fixtures via ESPN public scoreboards and TheSportsDB · headlines via BBC Sport, ESPN, ESPNcricinfo, The Guardian, Sky
           Sports, Yahoo &amp; CBS Sports RSS. All rights belong to their respective owners; headlines link to the original
           publisher.
         </p>

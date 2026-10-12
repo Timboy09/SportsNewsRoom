@@ -66,7 +66,7 @@ export default function Developers() {
         </p>
       ))}
       <p className="muted">
-        🏏 Cricket, rugby, athletics &amp; more arrive through the headlines feed (BBC Sport, ESPNcricinfo, Guardian, Sky Sports…).
+        🏏 Live cricket, 🏉 rugby and hundreds of extra football, basketball &amp; hockey leagues come from TheSportsDB (league slugs start with <code className="mono tag">tsdb.</code>). Headlines come from BBC Sport, ESPNcricinfo, Guardian, Sky Sports and more.
       </p>
     </div>
   );

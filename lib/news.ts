@@ -1,8 +1,8 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { cache } from "react";
 import { XMLParser } from "fast-xml-parser";
-import { cachedFetch, nextUpdate } from "./fetcher";
-import { ESPN_API_BASE, ESPN_NEWS, NEWS_FEEDS, type NewsFeed, type SportKey } from "./sources";
+import { cachedFetch, errorText, fetchJsonWithFallback, nextUpdate } from "./fetcher";
+import { ESPN_API_BASES, ESPN_NEWS, NEWS_FEEDS, type NewsFeed, type SportKey } from "./sources";
 import type { NewsItem, Snapshot, SourceHealth } from "./types";
 
 const MAX_ITEMS = 150;
@@ -117,7 +117,7 @@ export const getAllNews = cache(async (): Promise<Snapshot<NewsItem>> => {
     })),
     ...ESPN_NEWS.map((e) => ({
       name: `ESPN ${e.slug}`,
-      run: async () => parseEspnNews(e.sport, await (await cachedFetch(`${ESPN_API_BASE}/${e.sport}/${e.slug}/news`)).json()),
+      run: async () => parseEspnNews(e.sport, await fetchJsonWithFallback(ESPN_API_BASES.map((b) => `${b}/${e.sport}/${e.slug}/news`))),
     })),
   ];
 
@@ -128,7 +128,7 @@ export const getAllNews = cache(async (): Promise<Snapshot<NewsItem>> => {
 
   results.forEach((r, i) => {
     const list = r.status === "fulfilled" ? r.value : [];
-    sources.push({ name: jobs[i].name, ok: r.status === "fulfilled", count: list.length });
+    sources.push({ name: jobs[i].name, ok: r.status === "fulfilled", count: list.length, error: r.status === "rejected" ? errorText(r.reason) : undefined });
     for (const n of list) {
       if (new Date(n.published).getTime() < cutoff) continue;
       const k = dedupeKey(n);
