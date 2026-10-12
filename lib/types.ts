@@ -65,6 +65,7 @@ export interface SourceHealth {
   name: string;
   ok: boolean;
   count: number;
+  error?: string;
 }
 
 export interface Snapshot<T> {

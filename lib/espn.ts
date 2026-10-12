@@ -1,7 +1,8 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { cache } from "react";
-import { cachedFetch, nextUpdate } from "./fetcher";
-import { ESPN_API_BASE, LEAGUES, type League } from "./sources";
+import { errorText, fetchJsonWithFallback, nextUpdate } from "./fetcher";
+import { ESPN_API_BASES, LEAGUES, SPORTSDB_SPORTS, type League } from "./sources";
+import { fetchSportsDb, fixtureKey } from "./sportsdb";
 import type { Competitor, Match, MatchEvent, MatchState, Snapshot, SourceHealth } from "./types";
 
 const MAX_UNITS_PER_EVENT = 40;
@@ -155,8 +156,8 @@ export function normalizeScoreboard(league: League, data: any): Match[] {
 }
 
 async function fetchLeague(league: League): Promise<Match[]> {
-  const res = await cachedFetch(`${ESPN_API_BASE}/${league.sport}/${league.slug}/scoreboard`);
-  return normalizeScoreboard(league, await res.json());
+  const data = await fetchJsonWithFallback(ESPN_API_BASES.map((b) => `${b}/${league.sport}/${league.slug}/scoreboard`));
+  return normalizeScoreboard(league, data);
 }
 
 const STATE_ORDER: Record<MatchState, number> = { in: 0, pre: 1, post: 2 };
@@ -172,22 +173,33 @@ export function sortMatches(matches: Match[]): Match[] {
   });
 }
 
-/** All leagues in parallel; a slow or broken league never takes the page down. */
+/** Every source in parallel; a slow or broken one never takes the page down.
+ *  ESPN is primary (richer detail); TheSportsDB fills gaps (cricket, rugby,
+ *  extra leagues) and keeps scores flowing if ESPN is unreachable. */
 export const getAllMatches = cache(async (): Promise<Snapshot<Match>> => {
-  const results = await Promise.allSettled(LEAGUES.map(fetchLeague));
+  const jobs: { name: string; run: () => Promise<Match[]> }[] = [
+    ...LEAGUES.map((l) => ({ name: l.name, run: () => fetchLeague(l) })),
+    ...SPORTSDB_SPORTS.map((s) => ({ name: `TheSportsDB ${s.name}`, run: () => fetchSportsDb(s.name, s.sport) })),
+  ];
+  const results = await Promise.allSettled(jobs.map((j) => j.run()));
   const sources: SourceHealth[] = [];
-  const seen = new Set<string>();
+  const seenIds = new Set<string>();
+  const seenFixtures = new Set<string>();
   const items: Match[] = [];
 
   results.forEach((r, i) => {
     const ok = r.status === "fulfilled";
     const list = ok ? r.value : [];
-    sources.push({ name: LEAGUES[i].name, ok, count: list.length });
+    let added = 0;
     for (const m of list) {
-      if (seen.has(m.id)) continue;
-      seen.add(m.id);
+      const fk = m.headToHead ? fixtureKey(m) : m.id;
+      if (seenIds.has(m.id) || seenFixtures.has(fk)) continue;
+      seenIds.add(m.id);
+      seenFixtures.add(fk);
       items.push(m);
+      added++;
     }
+    sources.push({ name: jobs[i].name, ok, count: added, error: ok ? undefined : errorText(r.reason) });
   });
 
   const now = new Date();
@@ -195,8 +207,6 @@ export const getAllMatches = cache(async (): Promise<Snapshot<Match>> => {
 });
 
 export async function getMatch(leagueSlug: string, eventId: string): Promise<Match | undefined> {
-  const league = LEAGUES.find((l) => l.slug === leagueSlug);
-  if (!league) return undefined;
   const { items } = await getAllMatches();
   return items.find((m) => m.leagueSlug === leagueSlug && m.eventId === eventId);
 }

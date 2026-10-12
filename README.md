@@ -8,20 +8,21 @@ A global sports desk with live scores, fixtures, results and headlines from arou
 
 | Feature | Details |
 |---|---|
-| **Live desk** | 38 competitions: Champions League, Premier League, LaLiga, Serie A, Bundesliga, Ligue 1, ISL, Saudi Pro League, MLS, Brasileirão, Libertadores, NBA, NFL, MLB, NHL, ATP/WTA, UFC, F1, PGA and more |
+| **Live desk** | 38 ESPN competitions plus TheSportsDB (live **cricket**, rugby, extra football/basketball/hockey leagues): Champions League, Premier League, LaLiga, Serie A, Bundesliga, Ligue 1, ISL, Saudi Pro League, MLS, Brasileirão, Libertadores, NBA, NFL, MLB, NHL, ATP/WTA, UFC, F1, PGA and more |
 | **Headlines** | BBC Sport (incl. cricket, tennis, F1), ESPN, ESPNcricinfo, The Guardian, Sky Sports, Yahoo and CBS. Duplicate stories are removed and each one is tagged by sport |
 | **Copy codes** | Every match can be copied as **plain text, social post, Markdown, JSON, HTML card, live `<iframe>` embed or `fetch()` API snippet** |
 | **Bulk copy** | Copy every visible (filtered) match as Text, Markdown or JSON |
 | **Auto-update** | Server: ISR `revalidate = 900` (15 min) on every page and upstream fetch. Browser: a countdown refreshes the page in place every 15 min, and right away when you return to a stale tab |
 | **Filters** | Sport chips, Live / Upcoming / Results tabs, and instant search |
 | **Free JSON API** | `/api/matches`, `/api/news`, `/api/match/<league>/<id>` and `/api/health`. CORS is open, no key needed. See `/developers` on the site |
-| **Resilient** | Each of the ~58 sources is fetched in parallel with an 8 s timeout. A failing source is skipped, so it never breaks the page |
+| **Resilient** | Each of the ~63 sources is fetched in parallel with an 8 s timeout. A failing source is skipped, so it never breaks the page. `/api/health` shows each source's error |
 
 ## Deploy to Vercel (2 minutes)
 
 1. Click **Deploy with Vercel** above, or go to [vercel.com/new](https://vercel.com/new) and import `timboy09/sportsnewsroom`.
 2. Keep the defaults (Framework: Next.js) and click **Deploy**.
 3. Done. The site refreshes itself every 15 minutes. No API keys or database are needed.
+   (Optional: a paid TheSportsDB key in `THESPORTSDB_KEY` lifts the free key's limits.)
 
 Optional:
 - **Custom domain:** set the env var `NEXT_PUBLIC_SITE_URL=https://yourdomain.com` so the copied embed and API codes use it.

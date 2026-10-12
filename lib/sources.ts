@@ -3,8 +3,20 @@
 
 export const REFRESH_SECONDS = 900; // 15 minutes
 
-export const ESPN_API_BASE =
-  process.env.ESPN_API_BASE ?? "https://site.api.espn.com/apis/site/v2/sports";
+/** ESPN serves the same JSON from two hosts; the second is a fallback. */
+export const ESPN_API_BASES = process.env.ESPN_API_BASE
+  ? [process.env.ESPN_API_BASE]
+  : ["https://site.api.espn.com/apis/site/v2/sports", "https://site.web.api.espn.com/apis/site/v2/sports"];
+
+/** TheSportsDB — independent second source; adds live cricket & rugby. "3" is the public free key. */
+export const SPORTSDB_BASE = `https://www.thesportsdb.com/api/v1/json/${process.env.THESPORTSDB_KEY ?? "3"}`;
+export const SPORTSDB_SPORTS: { name: string; sport: SportKey }[] = [
+  { name: "Cricket", sport: "cricket" },
+  { name: "Soccer", sport: "soccer" },
+  { name: "Rugby", sport: "rugby" },
+  { name: "Basketball", sport: "basketball" },
+  { name: "Ice Hockey", sport: "hockey" },
+];
 
 export type SportKey =
   | "soccer"
@@ -16,7 +28,8 @@ export type SportKey =
   | "mma"
   | "racing"
   | "golf"
-  | "cricket";
+  | "cricket"
+  | "rugby";
 
 export interface League {
   sport: SportKey;
@@ -37,6 +50,7 @@ export const SPORT_LABELS: Record<SportKey, { label: string; icon: string }> = {
   mma: { label: "MMA", icon: "🥊" },
   racing: { label: "Formula 1", icon: "🏎️" },
   golf: { label: "Golf", icon: "⛳" },
+  rugby: { label: "Rugby", icon: "🏉" },
 };
 
 export const LEAGUES: League[] = [
