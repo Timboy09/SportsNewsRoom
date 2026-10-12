@@ -262,3 +262,62 @@ button:disabled { opacity: 0.5; cursor: default; }
   .copyall > span { display: none; }
   .grid { grid-template-columns: 1fr; }
 }
+
+/* ---------- Category bar ---------- */
+.catbar { border-top: 1px solid var(--line); }
+.catbar__inner { display: flex; gap: 4px; overflow-x: auto; scrollbar-width: none; padding-top: 6px; padding-bottom: 6px; }
+.catbar__inner::-webkit-scrollbar { display: none; }
+.cat { white-space: nowrap; text-decoration: none; font-size: 13px; font-weight: 600; padding: 6px 12px; border-radius: 999px; color: var(--muted); }
+.cat:hover { color: var(--ink); background: var(--panel); }
+.cat--on { background: var(--ink); color: var(--bg); }
+.cat--on:hover { background: var(--ink); color: var(--bg); }
+.newscol { top: 124px; max-height: calc(100vh - 140px); }
+.hero--sport h1 { font-size: clamp(34px, 6vw, 60px); }
+.small { font-size: 13px; }
+
+/* ---------- Poster buttons ---------- */
+.match__actions { display: flex; gap: 6px; flex: none; }
+.btn--poster { background: transparent; border-color: var(--accent); color: var(--ink); }
+.btn--poster svg { color: var(--accent); }
+.news__copy--last { margin-left: 0; }
+.news__meta .news__copy:first-of-type { margin-left: auto; }
+
+/* ---------- Poster studio modal ---------- */
+.modal { position: fixed; inset: 0; z-index: 60; background: rgba(5, 8, 14, 0.72); backdrop-filter: blur(6px); display: flex; align-items: center; justify-content: center; padding: 16px; }
+.modal__panel { background: var(--panel); border: 1px solid var(--line); border-radius: 18px; width: min(980px, 100%); max-height: calc(100vh - 32px); overflow: auto; box-shadow: 0 24px 80px rgba(0, 0, 0, 0.5); }
+.modal__head { display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; padding: 16px 18px; border-bottom: 1px solid var(--line); position: sticky; top: 0; background: var(--panel); z-index: 1; }
+.modal__sub { font-size: 13px; max-width: 640px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.modal__body { display: grid; grid-template-columns: minmax(0, 1fr) 340px; gap: 20px; padding: 18px; align-items: start; }
+@media (max-width: 760px) { .modal__body { grid-template-columns: 1fr; } }
+.poster-preview { position: relative; background: var(--panel-2); border-radius: 12px; overflow: hidden; display: flex; align-items: center; justify-content: center; max-height: 70vh; }
+.poster-preview img { display: block; max-width: 100%; max-height: 70vh; width: auto; height: auto; }
+.poster-preview--square { aspect-ratio: 1 / 1; }
+.poster-preview--portrait { aspect-ratio: 4 / 5; }
+.poster-preview--story { aspect-ratio: 9 / 16; }
+.poster-preview__spin { position: absolute; inset: 0; display: grid; place-items: center; color: var(--muted); font-weight: 600; background: color-mix(in srgb, var(--panel-2) 80%, transparent); }
+.modal__controls { display: flex; flex-direction: column; gap: 16px; }
+.field { display: flex; flex-direction: column; gap: 6px; font-size: 13px; font-weight: 600; color: var(--muted); }
+.field .tabs { flex-wrap: wrap; }
+.field .search { flex: none; }
+.modal__actions { display: flex; flex-direction: column; gap: 8px; }
+.btn--lg { justify-content: center; padding: 11px 14px; font-size: 15px; border-radius: 10px; }
+.caption summary { cursor: pointer; font-size: 13px; color: var(--muted); }
+.caption pre { white-space: pre-wrap; font-size: 13px; background: var(--panel-2); padding: 10px 12px; border-radius: 8px; }
+
+/* ---------- Games board ---------- */
+.games { margin-bottom: 24px; }
+.games .section-title a { text-decoration: none; font-family: var(--font); text-transform: none; letter-spacing: 0; font-weight: 600; }
+.games__card { display: flex; align-items: center; gap: 14px; padding: 14px 16px; }
+.games__card--live { border-color: color-mix(in srgb, var(--live) 55%, var(--line)); }
+.games__count { display: flex; flex-direction: column; align-items: center; justify-content: center; min-width: 76px; padding: 8px; border-radius: 12px; background: var(--panel-2); }
+.games__num { font: 700 30px/1 var(--display); color: var(--accent); }
+.games__card--live .games__num { color: var(--live); }
+.games__label { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em; color: var(--muted); text-align: center; margin-top: 4px; }
+.games__info { display: flex; flex-direction: column; min-width: 0; flex: 1; font-size: 14px; }
+.games__info b { font-size: 15px; }
+.newsgrid .news { grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 6px 18px; }
+@media (max-width: 600px) {
+  .games__card { flex-wrap: wrap; }
+  .games__info { flex-basis: calc(100% - 100px); }
+  .games__card .btn--poster { width: 100%; justify-content: center; padding: 8px; }
+}

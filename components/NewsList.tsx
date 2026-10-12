@@ -5,6 +5,7 @@ import type { NewsItem } from "@/lib/types";
 import { copyText } from "./clipboard";
 import { CopyIcon } from "./CopyMenu";
 import { LocalTime } from "./LocalTime";
+import { PosterButton, headlineTarget } from "./PosterButton";
 import { useToast } from "./Toast";
 
 export function NewsList({ items }: { items: NewsItem[] }) {
@@ -27,8 +28,9 @@ export function NewsList({ items }: { items: NewsItem[] }) {
               <span>{n.source}</span>
               <span>·</span>
               <LocalTime iso={n.published} mode="relative" />
+              <PosterButton compact target={headlineTarget(n)} />
               <button
-                className="news__copy"
+                className="news__copy news__copy--last"
                 title="Copy headline + link"
                 onClick={async () => toast((await copyText(`${n.title}\n${n.summary ? n.summary + "\n" : ""}${n.url}`)) ? "Copied headline" : "Copy failed")}
               >

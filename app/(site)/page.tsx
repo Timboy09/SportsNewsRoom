@@ -1,3 +1,4 @@
+import { GamesBoard } from "@/components/GamesBoard";
 import { Newsroom } from "@/components/Newsroom";
 import { RefreshTimer } from "@/components/RefreshTimer";
 import { MatchCard } from "@/components/MatchCard";
@@ -41,6 +42,8 @@ export default async function Home() {
           </div>
         </section>
       )}
+
+      <GamesBoard limit={3} compact />
 
       <Newsroom matches={matches.items} news={news.items} />
     </>

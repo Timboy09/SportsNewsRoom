@@ -5,7 +5,7 @@ import { cachedFetch, errorText, fetchJsonWithFallback, nextUpdate } from "./fet
 import { ESPN_API_BASES, ESPN_NEWS, NEWS_FEEDS, type NewsFeed, type SportKey } from "./sources";
 import type { NewsItem, Snapshot, SourceHealth } from "./types";
 
-const MAX_ITEMS = 150;
+const PER_SPORT = 30;
 const MAX_AGE_MS = 3 * 24 * 3600 * 1000;
 
 const parser = new XMLParser({
@@ -42,6 +42,11 @@ function imageOf(item: any): string | undefined {
 }
 
 const SPORT_HINTS: [SportKey, RegExp][] = [
+  ["games", /asian games|commonwealth games|olympic|paralympic|asiad/i],
+  ["chess", /\bchess\b|grandmaster|\bfide\b|candidates tournament|carlsen|gukesh|praggnanandhaa/i],
+  ["badminton", /badminton|\bbwf\b/i],
+  ["kabaddi", /kabaddi/i],
+  ["athletics", /athletics|diamond league|marathon|sprinter|javelin|neeraj chopra/i],
   ["cricket", /cricket|ipl|test match|odi|t20|ashes|wicket/i],
   ["soccer", /football|soccer|premier league|la ?liga|serie a|bundesliga|champions league|uefa|fifa|mls/i],
   ["basketball", /\bnba\b|basketball|wnba/i],
@@ -67,7 +72,16 @@ export function parseFeed(feed: NewsFeed, xml: string): NewsItem[] {
   const out: NewsItem[] = [];
 
   for (const it of [...rssItems, ...atomItems]) {
-    const title = text(it.title);
+    let title = text(it.title);
+    let source = feed.source;
+    if (feed.aggregator) {
+      // Google News: "Headline - Publisher" plus <source>Publisher</source>.
+      const publisher = text(it.source);
+      if (publisher) {
+        source = publisher;
+        if (title?.endsWith(` - ${publisher}`)) title = title.slice(0, -publisher.length - 3);
+      }
+    }
     const linkRaw = it.link;
     const url =
       typeof linkRaw === "string"
@@ -78,9 +92,10 @@ export function parseFeed(feed: NewsFeed, xml: string): NewsItem[] {
     out.push({
       id: url,
       title,
-      summary: text(it.description ?? it.summary)?.slice(0, 280),
+      // Aggregator descriptions are just link lists — skip them.
+      summary: feed.aggregator ? undefined : text(it.description ?? it.summary)?.slice(0, 280),
       url,
-      source: feed.source,
+      source,
       sport: guessSport(feed, title, url),
       image: imageOf(it),
       published: isNaN(published.getTime()) ? new Date().toISOString() : published.toISOString(),
@@ -138,9 +153,16 @@ export const getAllNews = cache(async (): Promise<Snapshot<NewsItem>> => {
     }
   });
 
+  // Newest first, capped per sport so busy sports can't crowd out chess or kabaddi.
+  const perSport = new Map<string, number>();
   const items = [...byKey.values()]
     .sort((a, b) => b.published.localeCompare(a.published))
-    .slice(0, MAX_ITEMS);
+    .filter((n) => {
+      const k = n.sport ?? "other";
+      const c = perSport.get(k) ?? 0;
+      perSport.set(k, c + 1);
+      return c < PER_SPORT;
+    });
   const now = new Date();
   return { updatedAt: now.toISOString(), nextUpdateAt: nextUpdate(now), items, sources };
 });

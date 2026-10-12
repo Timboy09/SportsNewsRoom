@@ -2,7 +2,7 @@
 
 import { useMemo, useState, useDeferredValue } from "react";
 import { formatMany } from "@/lib/format";
-import { SPORT_LABELS, type SportKey } from "@/lib/sources";
+import { LIVE_SCORE_SPORTS, SPORT_LABELS, type SportKey } from "@/lib/sources";
 import type { Match, MatchState, NewsItem } from "@/lib/types";
 import { copyText, useOrigin } from "./clipboard";
 import { MatchCard } from "./MatchCard";
@@ -17,8 +17,8 @@ const STATE_TABS: { id: StateFilter; label: string }[] = [
   { id: "post", label: "Results" },
 ];
 
-export function Newsroom({ matches, news }: { matches: Match[]; news: NewsItem[] }) {
-  const [sport, setSport] = useState<SportKey | "all">("all");
+export function Newsroom({ matches, news, fixedSport }: { matches: Match[]; news: NewsItem[]; fixedSport?: SportKey }) {
+  const [sport, setSport] = useState<SportKey | "all">(fixedSport ?? "all");
   const [state, setState] = useState<StateFilter>("all");
   const [query, setQuery] = useState("");
   const q = useDeferredValue(query.trim().toLowerCase());
@@ -72,9 +72,21 @@ export function Newsroom({ matches, news }: { matches: Match[]; news: NewsItem[]
     toast(ok ? `Copied ${visible.length} matches as ${fmt.toUpperCase()}` : "Copy failed");
   };
 
+  // Headlines-only sports (kabaddi, athletics, Games…): skip the empty scoreboard.
+  if (fixedSport && !LIVE_SCORE_SPORTS.has(fixedSport) && matches.length === 0) {
+    return (
+      <section aria-label="Headlines">
+        <h2 className="section-title">Latest headlines <span className="muted">· {news.length}</span></h2>
+        <div className="newsgrid">
+          <NewsList items={news} />
+        </div>
+      </section>
+    );
+  }
+
   return (
     <>
-      <nav className="sports" aria-label="Sports">
+      {!fixedSport && <nav className="sports" aria-label="Sports">
         <button className={`chip ${sport === "all" ? "chip--on" : ""}`} onClick={() => setSport("all")}>
           🌍 All sports <span className="chip__n">{matches.length}</span>
         </button>
@@ -88,7 +100,7 @@ export function Newsroom({ matches, news }: { matches: Match[]; news: NewsItem[]
             </button>
           );
         })}
-      </nav>
+      </nav>}
 
       <div className="toolbar">
         <div className="tabs" role="tablist">
@@ -120,8 +132,12 @@ export function Newsroom({ matches, news }: { matches: Match[]; news: NewsItem[]
         <section aria-label="Matches" className="matches">
           {groups.length === 0 && (
             <div className="empty card">
-              <p>No matches for this filter right now.</p>
-              <p className="muted">Fixtures refresh automatically every 15 minutes — check the headlines alongside.</p>
+              <p>No {fixedSport ? SPORT_LABELS[fixedSport].label.toLowerCase() + " " : ""}matches for this filter right now.</p>
+              <p className="muted">
+                {fixedSport && !LIVE_SCORE_SPORTS.has(fixedSport)
+                  ? "Live scores for this sport aren't available from free sources — the latest headlines are alongside, each with a Poster button."
+                  : "Fixtures refresh automatically every 15 minutes — check the headlines alongside."}
+              </p>
             </div>
           )}
           {groups.map(([league, list]) => (

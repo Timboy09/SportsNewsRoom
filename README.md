@@ -10,6 +10,10 @@ A global sports desk with live scores, fixtures, results and headlines from arou
 |---|---|
 | **Live desk** | 38 ESPN competitions plus TheSportsDB (live **cricket**, rugby, extra football/basketball/hockey leagues): Champions League, Premier League, LaLiga, Serie A, Bundesliga, Ligue 1, ISL, Saudi Pro League, MLS, Brasileirão, Libertadores, NBA, NFL, MLB, NHL, ATP/WTA, UFC, F1, PGA and more |
 | **Headlines** | BBC Sport (incl. cricket, tennis, F1), ESPN, ESPNcricinfo, The Guardian, Sky Sports, Yahoo and CBS. Duplicate stories are removed and each one is tagged by sport |
+| **Categories** | One page per sport at `/sport/<key>`: football, cricket, Multi-sport Games, chess, tennis, basketball, badminton, kabaddi, athletics, F1, rugby, ice hockey and more. Category bar on every page |
+| **Poster studio** | Every match, headline and Games event has a **Poster** button. It makes a branded PNG (Portrait 4:5, Square 1:1 or Story 9:16) with your @handle, then lets you Download, Share/copy image or Copy caption. API: `/api/poster/match/…`, `/api/poster/headline?…`, `/api/poster/games/<slug>` |
+| **Chess** | Live games from official Lichess broadcasts (top tournaments), with titles, ratings and federations |
+| **Multi-sport Games** | Asian Games, Asian Para Games, Commonwealth Games, Olympics, Youth Olympics and Paralympics, with live countdown/status cards and news via Google News |
 | **Copy codes** | Every match can be copied as **plain text, social post, Markdown, JSON, HTML card, live `<iframe>` embed or `fetch()` API snippet** |
 | **Bulk copy** | Copy every visible (filtered) match as Text, Markdown or JSON |
 | **Auto-update** | Server: ISR `revalidate = 900` (15 min) on every page and upstream fetch. Browser: a countdown refreshes the page in place every 15 min, and right away when you return to a stale tab |

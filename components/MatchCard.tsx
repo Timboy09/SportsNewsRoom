@@ -2,6 +2,7 @@ import Link from "next/link";
 import { SPORT_LABELS } from "@/lib/sources";
 import type { Competitor, Match } from "@/lib/types";
 import { CopyMenu } from "./CopyMenu";
+import { MatchPosterButton } from "./PosterButton";
 import { LocalTime } from "./LocalTime";
 
 function Crest({ c }: { c: Competitor }) {
@@ -67,7 +68,10 @@ export function MatchCard({ m }: { m: Match }) {
         <span className="match__meta">
           {m.state === "in" ? m.status : m.venue ?? m.location ?? m.region}
         </span>
-        <CopyMenu match={m} />
+        <div className="match__actions">
+          <MatchPosterButton m={m} />
+          <CopyMenu match={m} />
+        </div>
       </footer>
     </article>
   );
